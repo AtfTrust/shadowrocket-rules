@@ -1,0 +1,39 @@
+#!name=知乎&微博开屏去广告
+#!desc=精准拦截知乎与微博开屏广告（包含阿里Tanx、京东JAD、微博UVE及商业化开屏接口，秒开直达）
+#!author=Antigravity
+
+[Rule]
+# === 微博开屏与商业化域名 ===
+DOMAIN-SUFFIX,biz.weibo.com,REJECT
+DOMAIN-SUFFIX,adimg.uve.weibo.com,REJECT
+DOMAIN-SUFFIX,alitrip.uve.weibo.com,REJECT
+
+# === 知乎商业化与跟踪上报 ===
+DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
+DOMAIN-SUFFIX,appcloud2.zhihu.com,REJECT
+
+# === 常见聚合广告联盟 (阿里Tanx / 京东JAD / 穿山甲 / 优量汇) ===
+DOMAIN-SUFFIX,tanx.com,REJECT
+DOMAIN-SUFFIX,alimama.com,REJECT
+DOMAIN,jad.jd.com,REJECT
+DOMAIN,dsp-x.jd.com,REJECT
+DOMAIN,sponge.jd.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,e.qq.com,REJECT
+DOMAIN-SUFFIX,mobads.baidu.com,REJECT
+
+# === 规则级快速空响应 ===
+URL-REGEX,^https?:\/\/api\.zhihu\.com\/commercial_api\/(real_time_launch|launch_v2|app_launch),REJECT-DICT
+URL-REGEX,^https?:\/\/([0-9a-z.-]+\.)?uve\.weibo\.com\/(wbapplua\/wbpullad\.lua|interface\/sdk\/sdkad\.php),REJECT-200
+
+[URL Rewrite]
+# 知乎商业化开屏 -> 瞬间返回空字典 {}
+^https?:\/\/api\.zhihu\.com\/commercial_api\/(real_time_launch|launch_v2|app_launch) - reject-dict
+
+# 微博开屏广告拉取 -> 瞬间返回空数据 200
+^https?:\/\/([0-9a-z.-]+\.)?uve\.weibo\.com\/(wbapplua\/wbpullad\.lua|interface\/sdk\/sdkad\.php) - reject-200
+
+[MITM]
+hostname = %APPEND% api.zhihu.com, *.uve.weibo.com
