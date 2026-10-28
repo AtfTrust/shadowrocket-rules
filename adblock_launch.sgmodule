@@ -1,39 +1,55 @@
-#!name=知乎&微博开屏去广告
-#!desc=精准拦截知乎与微博开屏广告（包含阿里Tanx、京东JAD、微博UVE及商业化开屏接口，秒开直达）
+#!name=知乎&微博开屏秒开去广告
+#!desc=精准根除知乎与微博开屏广告（含禁止QUIC穿透、覆写微博UVE广告缓存、拦截阿里Tanx/京东JAD/穿山甲/优量汇/百度SDK联盟广告）
 #!author=Antigravity
 
 [Rule]
-# === 微博开屏与商业化域名 ===
-DOMAIN-SUFFIX,biz.weibo.com,REJECT
-DOMAIN-SUFFIX,adimg.uve.weibo.com,REJECT
-DOMAIN-SUFFIX,alitrip.uve.weibo.com,REJECT
+# === 1. 禁用 QUIC (UDP 443)，强制 App 降级到 TCP 走 MITM 解密 ===
+AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT-NO-DROP
 
-# === 知乎商业化与跟踪上报 ===
+# === 2. 知乎商业化与跟踪 ===
 DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
 DOMAIN-SUFFIX,appcloud2.zhihu.com,REJECT
 
-# === 常见聚合广告联盟 (阿里Tanx / 京东JAD / 穿山甲 / 优量汇) ===
+# === 3. 微博商业化与开屏下发 ===
+DOMAIN-SUFFIX,biz.weibo.com,REJECT
+DOMAIN-SUFFIX,adimg.uve.weibo.com,REJECT
+DOMAIN-SUFFIX,alitrip.uve.weibo.com,REJECT
+DOMAIN-SUFFIX,cad.uve.weibo.com,REJECT
+DOMAIN-SUFFIX,boot.uve.weibo.com,REJECT
+DOMAIN-SUFFIX,wax.weibo.com,REJECT
+DOMAIN-SUFFIX,sdkclick.mobile.sina.cn,REJECT
+DOMAIN-SUFFIX,sdkapp.mobile.sina.cn,REJECT
+
+# === 4. 聚合广告联盟 SDK（阿里Tanx/京东JAD/穿山甲/腾讯优量汇/百度/快手） ===
 DOMAIN-SUFFIX,tanx.com,REJECT
 DOMAIN-SUFFIX,alimama.com,REJECT
+DOMAIN-SUFFIX,alisec.aliapp.org,REJECT
+DOMAIN-SUFFIX,mmstat.com,REJECT
 DOMAIN,jad.jd.com,REJECT
 DOMAIN,dsp-x.jd.com,REJECT
 DOMAIN,sponge.jd.com,REJECT
 DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
 DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
 DOMAIN-SUFFIX,gdt.qq.com,REJECT
 DOMAIN-SUFFIX,e.qq.com,REJECT
+DOMAIN-SUFFIX,pgdt.gtimg.cn,REJECT
+DOMAIN-SUFFIX,mi.gdt.qq.com,REJECT
 DOMAIN-SUFFIX,mobads.baidu.com,REJECT
+DOMAIN-SUFFIX,mobads-logs.baidu.com,REJECT
+DOMAIN-SUFFIX,adukwai.com,REJECT
+DOMAIN-SUFFIX,open.e.kuaishou.com,REJECT
 
-# === 规则级快速空响应 ===
+# === 5. 规则级快速空响应 ===
 URL-REGEX,^https?:\/\/api\.zhihu\.com\/commercial_api\/(real_time_launch|launch_v2|app_launch),REJECT-DICT
-URL-REGEX,^https?:\/\/([0-9a-z.-]+\.)?uve\.weibo\.com\/(wbapplua\/wbpullad\.lua|interface\/sdk\/sdkad\.php),REJECT-200
 
 [URL Rewrite]
-# 知乎商业化开屏 -> 瞬间返回空字典 {}
+# 知乎商业化开屏 -> 返回空字典 {} 实现秒进
 ^https?:\/\/api\.zhihu\.com\/commercial_api\/(real_time_launch|launch_v2|app_launch) - reject-dict
 
-# 微博开屏广告拉取 -> 瞬间返回空数据 200
-^https?:\/\/([0-9a-z.-]+\.)?uve\.weibo\.com\/(wbapplua\/wbpullad\.lua|interface\/sdk\/sdkad\.php) - reject-200
+[Script]
+# 微博开屏广告拦截与本地缓存置空（清除本地预加载广告并延迟展示）
+微博开屏 = type=http-response,pattern=^https?:\/\/(sdk|wb)app\.uve\.weibo\.com(\/interface\/sdk\/sdkad\.php|\/wbapplua\/wbpullad\.lua),requires-body=1,max-size=0,script-path=https://fastly.jsdelivr.net/gh/AtfTrust/shadowrocket-rules@master/wb_launch.js
 
 [MITM]
 hostname = %APPEND% api.zhihu.com, *.uve.weibo.com
