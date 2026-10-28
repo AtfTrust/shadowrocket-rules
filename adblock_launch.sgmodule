@@ -1,16 +1,71 @@
 #!name=知乎&微博开屏秒开去广告
-#!desc=精准根除知乎与微博开屏广告（含禁止QUIC穿透、覆写微博UVE广告缓存、拦截阿里Tanx/京东JAD/穿山甲/优量汇/百度SDK联盟广告）
+#!desc=精准根除知乎与微博开屏广告（含禁止QUIC绕过、封杀京媒JADYun SDK/阿里Tanx/穿山甲/腾讯优量汇/百度等全联盟SDK、覆写微博UVE商业化下发）
 #!author=Antigravity
 
 [Rule]
-# === 1. 禁用 QUIC (UDP 443)，强制 App 降级到 TCP 走 MITM 解密 ===
+# === 1. 禁用 QUIC (UDP 443)，强制 App 降级到 TCP 走代理与 MITM ===
 AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT-NO-DROP
 
-# === 2. 知乎商业化与跟踪 ===
-DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
-DOMAIN-SUFFIX,appcloud2.zhihu.com,REJECT
+# === 2. 京东 / 京媒 JADYun 广告联盟 SDK（重中之重：斩断微博当前使用的京东开屏） ===
+DOMAIN-SUFFIX,jadyun.com,REJECT
+DOMAIN-SUFFIX,jad.jd.com,REJECT
+DOMAIN-SUFFIX,dsp-x.jd.com,REJECT
+DOMAIN-SUFFIX,sponge.jd.com,REJECT
+DOMAIN-SUFFIX,janapi.jd.com,REJECT
+DOMAIN-SUFFIX,dsp.jd.com,REJECT
+DOMAIN-SUFFIX,ad.jd.com,REJECT
+DOMAIN-SUFFIX,union.jd.com,REJECT
+DOMAIN-SUFFIX,sdk.jd.com,REJECT
+DOMAIN,c-m.jd.com,REJECT
 
-# === 3. 微博商业化与开屏下发 ===
+# === 3. 阿里 Tanx / 阿里妈妈 / 淘宝联盟 SDK ===
+DOMAIN-SUFFIX,tanx.com,REJECT
+DOMAIN-SUFFIX,alimama.com,REJECT
+DOMAIN-SUFFIX,alisec.aliapp.org,REJECT
+DOMAIN-SUFFIX,alilog.aliapp.org,REJECT
+DOMAIN-SUFFIX,mmstat.com,REJECT
+DOMAIN-SUFFIX,adashbc.ut.taobao.com,REJECT
+DOMAIN-SUFFIX,adashx.m.taobao.com,REJECT
+
+# === 4. 腾讯优量汇 GDT SDK ===
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,e.qq.com,REJECT
+DOMAIN-SUFFIX,pgdt.gtimg.cn,REJECT
+DOMAIN-SUFFIX,mi.gdt.qq.com,REJECT
+DOMAIN-SUFFIX,win.gdt.qq.com,REJECT
+DOMAIN-SUFFIX,v2.gdt.qq.com,REJECT
+DOMAIN-SUFFIX,tmead.y.qq.com,REJECT
+DOMAIN-SUFFIX,adsmind.gdtimg.com,REJECT
+DOMAIN-SUFFIX,adsmind.ugdtimg.com,REJECT
+DOMAIN-SUFFIX,ugdtimg.com,REJECT
+DOMAIN-SUFFIX,gdtimg.com,REJECT
+
+# === 5. 字节跳动穿山甲 Pangolin SDK ===
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
+DOMAIN-SUFFIX,pglstatp.com,REJECT
+DOMAIN-SUFFIX,toblog.ctobsnssdk.com,REJECT
+DOMAIN-SUFFIX,byteoversea.com,REJECT
+DOMAIN-SUFFIX,pangle.io,REJECT
+
+# === 6. 百度百青藤 Mobads SDK ===
+DOMAIN-SUFFIX,mobads.baidu.com,REJECT
+DOMAIN-SUFFIX,mobads-logs.baidu.com,REJECT
+DOMAIN-SUFFIX,mobads-pre-config.cdn.bcebos.com,REJECT
+DOMAIN-SUFFIX,baidustatic.com,REJECT
+
+# === 7. 快手/Sigmob/Mintegral 等其余聚合广告联盟 ===
+DOMAIN-SUFFIX,adukwai.com,REJECT
+DOMAIN-SUFFIX,open.e.kuaishou.com,REJECT
+DOMAIN-SUFFIX,kuaishouzt.com,REJECT
+DOMAIN-SUFFIX,sigmob.cn,REJECT
+DOMAIN-SUFFIX,sigmob.com,REJECT
+DOMAIN-SUFFIX,ads.sigmob.cn,REJECT
+DOMAIN-SUFFIX,mintegral.net,REJECT
+DOMAIN-SUFFIX,mobvista.com,REJECT
+
+# === 8. 微博官方商业化与开屏下发接口 ===
 DOMAIN-SUFFIX,biz.weibo.com,REJECT
 DOMAIN-SUFFIX,adimg.uve.weibo.com,REJECT
 DOMAIN-SUFFIX,alitrip.uve.weibo.com,REJECT
@@ -19,37 +74,33 @@ DOMAIN-SUFFIX,boot.uve.weibo.com,REJECT
 DOMAIN-SUFFIX,wax.weibo.com,REJECT
 DOMAIN-SUFFIX,sdkclick.mobile.sina.cn,REJECT
 DOMAIN-SUFFIX,sdkapp.mobile.sina.cn,REJECT
+DOMAIN-SUFFIX,sax.sina.com.cn,REJECT
+DOMAIN-SUFFIX,saxn.sina.com.cn,REJECT
+DOMAIN-SUFFIX,beacon.sina.com.cn,REJECT
+DOMAIN-SUFFIX,adbox.sina.com.cn,REJECT
+DOMAIN-SUFFIX,zymo.weibo.com,REJECT
+DOMAIN-SUFFIX,huodong.weibo.cn,REJECT
 
-# === 4. 聚合广告联盟 SDK（阿里Tanx/京东JAD/穿山甲/腾讯优量汇/百度/快手） ===
-DOMAIN-SUFFIX,tanx.com,REJECT
-DOMAIN-SUFFIX,alimama.com,REJECT
-DOMAIN-SUFFIX,alisec.aliapp.org,REJECT
-DOMAIN-SUFFIX,mmstat.com,REJECT
-DOMAIN,jad.jd.com,REJECT
-DOMAIN,dsp-x.jd.com,REJECT
-DOMAIN,sponge.jd.com,REJECT
-DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
-DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
-DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
-DOMAIN-SUFFIX,gdt.qq.com,REJECT
-DOMAIN-SUFFIX,e.qq.com,REJECT
-DOMAIN-SUFFIX,pgdt.gtimg.cn,REJECT
-DOMAIN-SUFFIX,mi.gdt.qq.com,REJECT
-DOMAIN-SUFFIX,mobads.baidu.com,REJECT
-DOMAIN-SUFFIX,mobads-logs.baidu.com,REJECT
-DOMAIN-SUFFIX,adukwai.com,REJECT
-DOMAIN-SUFFIX,open.e.kuaishou.com,REJECT
-
-# === 5. 规则级快速空响应 ===
+# === 9. 知乎官方商业化与开屏下发接口 ===
+DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
+DOMAIN-SUFFIX,appcloud2.zhihu.com,REJECT
 URL-REGEX,^https?:\/\/api\.zhihu\.com\/commercial_api\/(real_time_launch|launch_v2|app_launch),REJECT-DICT
 
 [URL Rewrite]
-# 知乎商业化开屏 -> 返回空字典 {} 实现秒进
+# 知乎商业化开屏 -> 返回空字典 {} 秒开进入
 ^https?:\/\/api\.zhihu\.com\/commercial_api\/(real_time_launch|launch_v2|app_launch) - reject-dict
 
+# 微博官方开屏 -> 瞬间返回空字典 {}
+^https?:\/\/(sdk|wb)app\.uve\.weibo\.com\/(interface\/sdk\/sdkad\.php|wbapplua\/wbpullad\.lua) - reject-dict
+^https?:\/\/api\.weibo\.cn\/2\/(client\/launch|sdk\/ad) - reject-dict
+
+# 京东 JAD / JADYun 开屏请求本地拦截
+^https?:\/\/([a-z0-9.-]+\.)?jadyun\.com\/.* - reject
+^https?:\/\/jad\.jd\.com\/.* - reject
+
 [Script]
-# 微博开屏广告拦截与本地缓存置空（清除本地预加载广告并延迟展示）
+# 微博开屏本地预加载缓存深度净化（将本地保存的开屏设为 0 并延迟 365 天）
 微博开屏 = type=http-response,pattern=^https?:\/\/(sdk|wb)app\.uve\.weibo\.com(\/interface\/sdk\/sdkad\.php|\/wbapplua\/wbpullad\.lua),requires-body=1,max-size=0,script-path=https://fastly.jsdelivr.net/gh/AtfTrust/shadowrocket-rules@master/wb_launch.js
 
 [MITM]
-hostname = %APPEND% api.zhihu.com, *.uve.weibo.com
+hostname = %APPEND% api.zhihu.com, *.uve.weibo.com, api.weibo.cn, *.jadyun.com, jad.jd.com
